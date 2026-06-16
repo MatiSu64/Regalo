@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armario.</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    background:#050505;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+/* =====================================================
+   GABINETE
+===================================================== */
+
+#cabinet{
+    position:fixed;
+    inset:0;
+
+    background:
+    linear-gradient(
+        to bottom,
+        #3d2516 0%,
+        #20150e 25%,
+        #080808 100%
+    );
+}
+
+/* =====================================================
+   LUZ
+===================================================== */
+
+#slit{
+    position:absolute;
+    top:35px;
+    left:50%;
+    transform:translateX(-50%);
+
+    width:260px;
+    height:10px;
+
+    background:#fff3b0;
+
+    box-shadow:
+        0 0 25px #fff3b0,
+        0 0 60px #fff3b0,
+        0 0 120px #fff3b0;
+}
+
+#beam{
+    position:absolute;
+    top:45px;
+    left:50%;
+    transform:translateX(-50%);
+
+    width:500px;
+    height:700px;
+
+    background:
+    linear-gradient(
+        rgba(255,245,180,.25),
+        rgba(255,245,180,0)
+    );
+
+    clip-path:polygon(
+        38% 0%,
+        62% 0%,
+        100% 100%,
+        0% 100%
+    );
+}
+
+/* =====================================================
+   POLVO
+===================================================== */
+
+.dust{
+    position:absolute;
+    width:3px;
+    height:3px;
+    border-radius:50%;
+    background:white;
+    opacity:.4;
+}
+
+/* =====================================================
+   TEXTO FLOTANTE
+===================================================== */
+
+#floatingTextContainer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
+
+.floatingText{
+    position:absolute;
+
+    max-width:320px;
+
+    color:white;
+    font-weight:bold;
+    font-size:26px;
+    line-height:1.6;
+
+    text-shadow:
+        0 0 5px black,
+        0 0 10px black;
+
+    opacity:0;
+
+    animation:fadeStory 18s linear forwards;
+}
+
+@keyframes fadeStory{
+
+    0%{
+        opacity:0;
+    }
+
+    10%{
+        opacity:1;
+    }
+
+    80%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:0;
+    }
+}
+
+/* =====================================================
+   RESPIRACION
+===================================================== */
+
+#container{
+    position:absolute;
+
+    top:56%;
+    left:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:260px;
+    height:260px;
+}
+
+#outer{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:220px;
+    height:220px;
+
+    border:4px solid #7fdcff;
+    border-radius:50%;
+}
+
+#outer.good{
+    border-color:#4dff72;
+
+    box-shadow:
+        0 0 15px #4dff72,
+        0 0 35px #4dff72;
+}
+
+#inner{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:80px;
+    height:80px;
+
+    border:3px solid white;
+    border-radius:50%;
+}
+
+/* =====================================================
+   UI
+===================================================== */
+
+#ui{
+    position:absolute;
+    top:72%;
+    width:100%;
+    text-align:center;
+}
+
+#key{
+    color:#fff3b0;
+    font-size:34px;
+    font-weight:bold;
+}
+
+#timer{
+    margin-top:10px;
+    font-size:22px;
+}
+
+.label{
+    margin-top:10px;
+    font-size:14px;
+}
+
+.bar{
+    width:320px;
+    max-width:85%;
+
+    height:18px;
+
+    margin:8px auto;
+
+    background:#222;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.fill{
+    height:100%;
+}
+
+#air{
+    width:100%;
+    background:#44ccff;
+}
+
+#noise{
+    width:0%;
+    background:#ff4444;
+}
+
+#message{
+    margin-top:15px;
+    min-height:25px;
+}
+
+/* =====================================================
+   GAME OVER
+===================================================== */
+
+#gameOver{
+    position:fixed;
+    inset:0;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    text-align:center;
+
+    background:rgba(0,0,0,.92);
+
+    font-size:42px;
+    padding:30px;
+
+    z-index:999;
+}
+
+#feedback{
+    margin-top:10px;
+    color:#ff7777;
+    font-weight:bold;
+    min-height:24px;
+}
+#combo{
+    margin-top:8px;
+    color:#ffffff;
+    font-weight:bold;
+}
+#flash{
+    position:fixed;
+    inset:0;
+    background:black;
+    opacity:0;
+    pointer-events:none;
+    z-index:500;
+    transition:opacity .12s;
+}
+.pulse{
+    animation:pulseWave .35s ease-out;
+}
+@keyframes pulseWave{
+0%{transform:translate(-50%,-50%) scale(1);}
+50%{transform:translate(-50%,-50%) scale(1.15);}
+100%{transform:translate(-50%,-50%) scale(1);}
+}
+
+</style>
+</head>
+<body>
+
+<div id="cabinet">
+
+    <div id="slit"></div>
+    <div id="beam"></div>
+
+    <div id="floatingTextContainer"></div>
+
+    <div id="container">
+        <div id="outer"></div>
+        <div id="inner"></div>
+    </div>
+
+    <div id="ui">
+
+        <div>
+            Respirar:
+            <span id="key"></span>
+        </div>
+
+        <div id="timer">
+            03:00
+        </div>
+
+        <div class="label">
+            Aire
+        </div>
+
+        <div class="bar">
+            <div id="air" class="fill"></div>
+        </div>
+
+        <div class="label">
+            Ruido
+        </div>
+
+        <div class="bar">
+            <div id="noise" class="fill"></div>
+        </div>
+
+        <div id="message"></div>
+<div id="feedback"></div>
+<div id="combo">Combo x0</div>
+<div id="flash"></div>
+
+    </div>
+
+</div>
+
+<div id="gameOver"></div>
+
+<script>
+
+/* =====================================================
+   HISTORIA
+===================================================== */
+
+const historia = [
+
+"Descubriste que te puedes esconder en un armario.",
+
+"Lo haces solo por el simple hecho de hacerlo.",
+
+"No sabes por qué, pero tienes compañia... ",
+
+"(si, yo)",
+
+"(La única luz entra por una estrecha ranura sobre tu cabeza.)",
+
+"-Alli esta Elian!",
+
+"-¿Quien?",
+
+"...",
+
+"-La profesora, la de ingles",
+
+"-Ah, la de ingles... ¿Pero cual?",
+
+"-Callate!",
+
+"...",
+
+"-Voy a salir.",
+
+"-¿Que?, n-no! nos van a regañar Elian.",
+
+"...",  
+
+"-Cierto.....",
+
+"(...)",
+
+"-¿Ya se fue, Miguel?",
+
+"-si, ya se fue.",
+
+"-...",
+
+"(timbre)",
+
+"-¿Ahora como salimos de este armario sin que nos vean?",
+
+"-C-callate Elian, ya se fue, no te preocupes.",
+
+"-sali miguel.",
+
+"-Sal."
+];
+
+const floatingContainer =
+document.getElementById(
+"floatingTextContainer"
+);
+
+let historiaIndex = 0;
+
+function mostrarTexto(texto){
+
+    const el =
+    document.createElement("div");
+
+    el.className = "floatingText";
+
+    texto = texto.trim();
+
+    if(!texto.endsWith(".")){
+        texto += ".";
+    }
+
+    el.textContent = texto;
+
+    const izquierda =
+    Math.random() > 0.5;
+
+    if(izquierda){
+
+        el.style.left =
+        (20 + Math.random()*120) + "px";
+
+    }else{
+
+        el.style.right =
+        (20 + Math.random()*120) + "px";
+    }
+
+    const alturas = [
+        60,
+        120,
+        180,
+        260,
+        340,
+        420
+    ];
+
+    el.style.top =
+    alturas[
+        Math.floor(
+            Math.random()*alturas.length
+        )
+    ] + "px";
+
+    floatingContainer.appendChild(el);
+
+    setTimeout(()=>{
+        el.remove();
+    },10000);
+}
+
+// MODIFICACIÓN: Texto uno a uno (intervalo más largo)
+setInterval(()=>{
+
+    if(dead) return;
+    
+    // Eliminar texto previo para que sea de uno en uno
+    floatingContainer.innerHTML = "";
+
+    mostrarTexto(
+        historia[
+            historiaIndex %
+            historia.length
+        ]
+    );
+
+    historiaIndex++;
+
+},8000); // Aumentado el tiempo para que no se solapen
+
+/* =====================================================
+   POLVO
+===================================================== */
+
+const dust = [];
+
+for(let i=0;i<60;i++){
+
+    const d =
+    document.createElement("div");
+
+    d.className = "dust";
+
+    document.body.appendChild(d);
+
+    dust.push({
+
+        el:d,
+
+        x:
+        Math.random()*
+        window.innerWidth,
+
+        y:
+        Math.random()*
+        window.innerHeight,
+
+        speed:
+        0.2 + Math.random()
+    });
+}
+
+/* =====================================================
+   RESPIRACION
+===================================================== */
+
+const letters =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const keySpan =
+document.getElementById("key");
+
+const outer =
+document.getElementById("outer");
+
+const airBar =
+document.getElementById("air");
+
+const noiseBar =
+document.getElementById("noise");
+
+const message =
+document.getElementById("message");
+
+const gameOver =
+document.getElementById("gameOver");
+
+const timerElement =
+document.getElementById("timer");
+const feedback=document.getElementById("feedback");
+const comboText=document.getElementById("combo");
+const flash=document.getElementById("flash");
+
+let currentKey;
+
+let circleSize = 220;
+
+let air = 100;
+let noise = 0;
+
+let dead = false;
+let combo=0;
+let shrinking=true;
+
+function randomKey(){
+
+    currentKey =
+    letters[
+        Math.floor(
+            Math.random()*
+            letters.length
+        )
+    ];
+
+    keySpan.textContent =
+    currentKey;
+}
+
+randomKey();
+
+function flashBlack(){
+flash.style.opacity=".85";
+setTimeout(()=>flash.style.opacity="0",120);
+}
+function perfectWave(){
+outer.classList.remove("pulse");
+void outer.offsetWidth;
+outer.classList.add("pulse");
+}
+
+/* =====================================================
+   TEMPORIZADOR 3 MIN
+===================================================== */
+
+let tiempoRestante = 210;
+
+function actualizarTimer(){
+
+    const min =
+    Math.floor(
+        tiempoRestante / 60
+    );
+
+    const sec =
+    tiempoRestante % 60;
+
+    timerElement.textContent =
+    String(min).padStart(2,"0")
+    + ":" +
+    String(sec).padStart(2,"0");
+}
+
+actualizarTimer();
+
+setInterval(()=>{
+
+    if(dead) return;
+
+    tiempoRestante--;
+
+    actualizarTimer();
+
+    if(tiempoRestante <= 0){
+
+        dead = true;
+
+        gameOver.style.display =
+        "flex";
+
+        gameOver.innerHTML =
+        "Feliz cumpleaños :3.";
+    }
+
+},1000);
+
+/* =================================================== ==
+   DERROTA
+===================================================== */
+
+function lose(text){
+
+    dead = true;
+
+    gameOver.style.display =
+    "flex";
+
+    gameOver.innerHTML =
+    text;
+}
+
+/* =====================================================
+   LOOP
+===================================================== */
+
+function update(){
+
+    if(dead) return;
+
+    dust.forEach(d=>{
+
+        d.y -= d.speed;
+
+        if(d.y < -10){
+            d.y =
+            window.innerHeight+10;
+        }
+
+        d.el.style.left =
+        d.x+"px";
+
+        d.el.style.top =
+        d.y+"px";
+    });
+
+    if(shrinking){
+        // MODIFICACIÓN: Más lento (0.25 en lugar de 0.45)
+        circleSize -= 0.25;
+        if(circleSize <= 60) shrinking=false;
+    }else{
+        circleSize += 0.25;
+        if(circleSize >= 220) shrinking=true;
+    }
+
+    air -= 0.02;
+
+    if(air <= 0){
+
+        lose(
+            "Te quedaste sin aire."
+        );
+
+        return;
+    }
+
+    if(
+        circleSize >= 72 &&
+        circleSize <= 92
+    ){
+        outer.classList.add("good");
+    }
+    else{
+        outer.classList.remove("good");
+    }
+
+    outer.style.width =
+    circleSize + "px";
+
+    outer.style.height =
+    circleSize + "px";
+
+    airBar.style.width =
+    air + "%";
+
+    noiseBar.style.width =
+    noise + "%";
+
+    requestAnimationFrame(update);
+}
+
+requestAnimationFrame(update);
+
+/* =====================================================
+   TECLA
+===================================================== */
+
+document.addEventListener(
+"keydown",
+e=>{
+
+    if(dead) return;
+
+    if(e.key.toUpperCase() !== currentKey) return;
+
+    const diff = Math.abs(circleSize - 80);
+
+    feedback.textContent="";
+
+    if(diff <= 15){
+
+        air = 100;
+        noise = Math.max(0, noise - 10);
+        combo++;
+
+        if(combo>0 && combo%5===0){
+            noise=Math.max(0,noise-5);
+        }
+
+        perfectWave();
+
+    }else if(diff <= 35){
+
+        air = 90;
+        combo++;
+
+        if(combo>0 && combo%5===0){
+            noise=Math.max(0,noise-5);
+        }
+
+    }else if(diff <= 60){
+
+        noise += 20;
+        combo = 0;
+        feedback.textContent="Eso estuvo: mal";
+
+    }else{
+
+        air *= 0.5;
+        noise += 20;
+        combo = 0;
+
+        flashBlack();
+
+        feedback.textContent="Eso estuvo: horrible";
+    }
+
+    comboText.textContent="Combo x"+combo;
+
+    circleSize=220;
+    shrinking=true;
+
+    randomKey();
+
+    if(noise >= 100){
+        lose("Te encontraron.");
+    }
+});
+
+/* =====================================================
+   MENSAJES
+===================================================== */
+
+setInterval(()=>{
+
+    if(dead) return;
+
+    if(noise > 70){
+
+        message.textContent =
+        "Escuchas pasos acercándose.";
+    }
+    else if(air < 30){
+
+        message.textContent =
+        "Tus pulmones empiezan a arder.";
+    }
+
+},2000);
+
+</script>
+</body>
+</html>
